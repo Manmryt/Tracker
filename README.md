@@ -3,16 +3,54 @@
 # RC Plane Tracker and Flight Controller Core
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.x-blue?logo=espressif)](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/)
+[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.1-blue?logo=espressif)](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/)
 [![Status](https://img.shields.io/badge/Status-In--Development-orange)](https://github.com/)
 
 **Building a high-performance orientation tracker for RC planes, designed from the ground up using ESP-IDF.**
 
-[About](#about) • [Hardware](#hardware-and-tech-stack) • [Development Journey](#the-development-journey) • [Future Roadmap](#future-roadmap) • [Setup](#setup)
+[Software Setup](#software-setup) • [Hardware Roles](#hardware-roles-and-deployment) • [GCS Dashboard](#ground-control-station-gcs-dashboard-setup) • [Calibration](#calibration-guide) • [Firmware Installation](#firmware-installation)
 
 ---
 
 </div>
+
+## Software Setup
+
+Follow these steps to prepare your development environment. This guide assumes a Linux (Ubuntu/Debian) environment.
+
+### 1. System Prerequisites
+Ensure your system is up to date and has the necessary build tools.
+- **Python:** 3.8 or newer
+- **Git:** 2.x or newer
+
+```bash
+sudo apt-get update
+sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+```
+
+### 2. Install ESP-IDF (Version 5.1)
+We use ESP-IDF v5.1 for this project.
+```bash
+# Create a directory for the toolchain
+mkdir -p ~/esp
+cd ~/esp
+
+# Clone the repository
+git clone --recursive -b v5.1 https://github.com/espressif/esp-idf.git
+
+# Run the installation script
+cd ~/esp/esp-idf
+./install.sh esp32
+```
+
+### 3. Python Dashboard Dependencies
+The Ground Control Station (GCS) requires specific Python libraries.
+```bash
+# Install libraries globally or in a venv
+pip install vpython==7.6.4 pyserial==3.5
+```
+
+---
 
 ## About
 
@@ -24,7 +62,7 @@ The focus is on **learning by doing**: documenting every datasheet read, every S
 
 | Category | Component | Technology |
 | :--- | :--- | :--- |
-| **Microcontroller** | ESP32 | ESP-IDF (C) |
+| **Microcontroller** | ESP32 | ESP-IDF v5.1 (C) |
 | **IMU (9-DOF)** | ICM-20948 | I2C / SPI |
 | **Telemetry** | LoRa SX127x | SPI |
 | **Algorithms** | AHRS | Madgwick / Mahony |
@@ -54,64 +92,81 @@ The focus is on **learning by doing**: documenting every datasheet read, every S
 - [ ] **Actuation:** Generating PWM and DShot signals for servos and ESCs.
 - [ ] **Expansion:** GPS integration for RTH (Return to Home) capabilities.
 
-## Ground Control Station (GCS) Dashboard
-The GCS dashboard provides a real-time 3D visualization of the plane's orientation and flight path.
+## Hardware Roles and Deployment
 
-### Prerequisites
-- Python 3.x
-- `vpython` and `pyserial` libraries:
-  ```bash
-  pip install vpython pyserial
-  ```
+This project requires **two separate ESP32 MCUs**. It is critical to flash the correct firmware to the corresponding hardware role.
 
-### Running the Dashboard
-1. Connect the **Ground Station ESP32** to your PC via USB.
-2. Identify the serial port (e.g., `/dev/ttyUSB0` or `COM3`).
-3. Update `gcs/dashboard.py` with your serial port.
-4. Run the script:
+### 1. Tracker Unit (The Airplane)
+- **Role:** Mounted on the RC plane. Captures motion, processes orientation, and transmits data via LoRa.
+- **Components:** ESP32, ICM-20948 IMU, LoRa Module, SD Card Module.
+- **Source Code Directory:** Root directory (`/`).
+
+### 2. Ground Station Unit (The Pilot)
+- **Role:** Remains with the pilot. Receives LoRa data, displays summary on OLED, and forwards detailed telemetry to a PC via UART/USB for 3D visualization.
+- **Components:** ESP32, LoRa Module, SSD1306 OLED.
+- **Source Code Directory:** `ground_station/`.
+
+---
+
+## Ground Control Station (GCS) Dashboard Setup
+
+The GCS dashboard is a Python application that provides a real-time 3D visualization of the plane's attitude and flight path.
+
+### 1. UART Connection
+The Ground Station ESP32 communicates with the PC dashboard via the **UART-to-USB bridge**.
+- Ensure the Ground Station is connected to your PC.
+- The firmware outputs data at **115200 baud**.
+
+### 2. Dependency Verification
+Run the following command to verify dependencies are correctly installed:
+```bash
+python3 -c "import vpython; import serial; print('Dependencies verified successfully')"
+```
+
+### 3. Running the Dashboard
+1. Identify your serial port (Linux: `/dev/ttyUSB0`, Windows: `COM3`).
+2. Open `gcs/dashboard.py` and update the `SERIAL_PORT` variable.
+3. Run the script:
    ```bash
-   python gcs/dashboard.py
+   python3 gcs/dashboard.py
    ```
-   A browser window will open showing the 3D plane and the "Ribbon" flight path.
+
+---
 
 ## Calibration Guide
 To ensure accurate flight data and path mapping, you must calibrate the IMU:
 1.  **Level and Still:** Place the plane on a perfectly level surface and keep it absolutely still.
-2.  **Trigger:** Hold the **BOOT button (GPIO 0)** while powering on or resetting the ESP32.
+2.  **Trigger:** Hold the **BOOT button (GPIO 0)** while powering on or resetting the Tracker ESP32.
 3.  **Process:** The firmware will take 500 samples to calculate offsets and save them to **NVS (Non-Volatile Storage)**.
 4.  **Auto-Load:** On subsequent boots, the offsets are loaded automatically.
 
-## Setup
+---
 
-### 1. Install ESP-IDF
-Follow the [official Espressif guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) to install the ESP-IDF toolchain for your OS.
+## Firmware Installation
 
-### 2. Export Environment Variables
-In your terminal, navigate to your ESP-IDF directory and run the export script:
+### 1. Export ESP-IDF Environment
+Before building, you must export the environment variables in every new terminal session:
 ```bash
-. $HOME/esp/esp-idf/export.sh
+. ~/esp/esp-idf/export.sh
 ```
 
-### 3. Build and Flash the Tracker (Air Unit)
-From the project root:
+### 2. Flash the Tracker (Air Unit)
+Connect the **Tracker ESP32** to your PC:
 ```bash
-# Navigate to tracker project (root)
-cd Tracker
-# Set target to esp32
+# From the project root
 idf.py set-target esp32
-# Build, Flash, and Monitor
-idf.py build flash monitor
+idf.py build flash
 ```
 
-### 4. Build and Flash the Ground Station
+### 3. Flash the Ground Station
+Connect the **Ground Station ESP32** to your PC:
 ```bash
-# Navigate to ground station directory
 cd ground_station
-# Set target to esp32
 idf.py set-target esp32
-# Build, Flash, and Monitor
-idf.py build flash monitor
+idf.py build flash
 ```
+
+---
 
 ## Future Roadmap
 While starting as a tracker, the architecture is being built to support:
