@@ -1,8 +1,8 @@
-# 🔌 Hardware & Wiring Guide
+#  Hardware & Wiring Guide
 
 This guide details the components and connections required to build the RC Plane Tracker and the Ground Station.
 
-## 📦 Bill of Materials (BOM)
+##  Bill of Materials (BOM)
 
 | Component | Description | Quantity |
 | :--- | :--- | :--- |
@@ -15,7 +15,7 @@ This guide details the components and connections required to build the RC Plane
 
 ---
 
-## 🏗️ Tracker (Air Unit) Wiring
+##  Tracker (Air Unit) Wiring
 
 The Tracker uses **I2C** for the IMU and **SPI** for the LoRa module and SD card.
 
@@ -33,7 +33,7 @@ The Tracker uses **I2C** for the IMU and **SPI** for the LoRa module and SD card
 
 ---
 
-## 📡 Ground Station Wiring
+##  Ground Station Wiring
 
 The Ground Station uses **SPI** for LoRa and **I2C** for the OLED display.
 
@@ -50,7 +50,7 @@ The Ground Station uses **SPI** for LoRa and **I2C** for the OLED display.
 
 ---
 
-## ⚠️ Critical Notes
+##  Critical Notes
 1. **Antennas:** Never power the LoRa modules without their antennas attached, as this can destroy the RF power amplifier.
 2. **Voltage:** Ensure all modules are powered by **3.3V**. Some SD card modules are 5V; use a level shifter or the 3.3V rail if supported.
 3. **SPI Sharing:** The LoRa module and SD card share the same MOSI, MISO, and SCK lines but have **different CS (Chip Select)** pins.

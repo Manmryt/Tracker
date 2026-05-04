@@ -1,8 +1,8 @@
-# 📑 Component Research & Register Map
+#  Component Research & Register Map
 
 This document provides exact technical specifications for the core hardware used in this project and a consolidated register map for quick reference.
 
-## 🔬 Core Components Detail
+##  Core Components Detail
 
 | Component | Exact Model / Version | Key Specifications | Role |
 | :--- | :--- | :--- | :--- |
@@ -14,7 +14,7 @@ This document provides exact technical specifications for the core hardware used
 
 ---
 
-## 🗄️ ICM-20948 Register Map
+##  ICM-20948 Register Map
 The ICM-20948 uses a **banked architecture**. Write the bank number to `REG_BANK_SEL` (0x7F) before accessing registers in that bank.
 
 ### **User Bank 0: Data & Power**
@@ -37,7 +37,7 @@ The ICM-20948 uses a **banked architecture**. Write the bank number to `REG_BANK
 
 ---
 
-## 📡 SX1276 LoRa Mode Register Map
+##  SX1276 LoRa Mode Register Map
 *Note: Only applicable when LoRa mode is enabled in `RegOpMode`.*
 
 | Hex | Register Name | Description |
@@ -53,7 +53,7 @@ The ICM-20948 uses a **banked architecture**. Write the bank number to `REG_BANK
 
 ---
 
-## 🧭 Magnetometer (AK09916)
+##  Magnetometer (AK09916)
 The Magnetometer is an internal I2C slave to the ICM-20948. It is typically accessed via the ICM's I2C Master interface (Bank 3).
 
 | Hex | Register Name | Description |
