@@ -30,7 +30,7 @@ The focus is on **learning by doing**: documenting every datasheet read, every S
 | **Algorithms** | AHRS | Madgwick / Mahony |
 | **Tools** | Linux / VS Code | CMake / Ninja |
 
-## 🗺️ The Development Journey
+##  The Development Journey
 
 ###  Phase 1: Foundation & Research
 - [ ] **Environment:** Setting up the ESP-IDF toolchain on Linux.
