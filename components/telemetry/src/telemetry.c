@@ -15,9 +15,9 @@ typedef struct __attribute__((packed)) {
     float roll;
     float pitch;
     float yaw;
-    int16_t accel_x;
-    int16_t accel_y;
-    int16_t accel_z;
+    int16_t posX; // Position in cm (to save space, scaled from float)
+    int16_t posY;
+    int16_t posZ;
 } telemetry_packet_t;
 
 void telemetry_init(void)
@@ -29,15 +29,12 @@ void telemetry_init(void)
         .queue_size = 7,
     };
 
-    esp_err_t ret = spi_bus_add_device(SPI_LORA_HOST, &devcfg, &lora_spi);
+    esp_err_t ret = spi_bus_add_device(SPI_BUS_HOST, &devcfg, &lora_spi);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to add LoRa SPI device");
         return;
     }
 
-    // Placeholder: Initialize SX127x registers here
-    // (e.g., set frequency to 433MHz/868MHz/915MHz, SF, BW, etc.)
-    
     ESP_LOGI(TAG, "LoRa SPI device added, ready for config");
 }
 
@@ -50,9 +47,11 @@ void telemetry_send_state(tracker_state_t state)
     packet.roll = state.attitude.roll;
     packet.pitch = state.attitude.pitch;
     packet.yaw = state.attitude.yaw;
-    packet.accel_x = (int16_t)state.accel.x;
-    packet.accel_y = (int16_t)state.accel.y;
-    packet.accel_z = (int16_t)state.accel.z;
+    
+    // Scale position to cm for transmission
+    packet.posX = (int16_t)(state.position.x * 100.0f);
+    packet.posY = (int16_t)(state.position.y * 100.0f);
+    packet.posZ = (int16_t)(state.position.z * 100.0f);
 
     // Placeholder: Send packet via LoRa
     ESP_LOGD(TAG, "Telemetry Packet Sent (%d bytes)", sizeof(packet));
@@ -60,26 +59,18 @@ void telemetry_send_state(tracker_state_t state)
 
 esp_err_t telemetry_receive(tracker_state_t *state, uint32_t timeout_ms)
 {
-    telemetry_packet_t packet;
-    
-    // Placeholder: Receive packet from LoRa
-    // In a real implementation, you would:
-    // 1. Wait for RX_DONE interrupt or poll
-    // 2. Read packet from SX127x FIFO
-    // 3. Verify CRC
-    
-    // For now, return ESP_ERR_TIMEOUT to simulate waiting for a packet
-    // Once hardware is connected, actual LoRa SPI reads will go here
+    // Simulation: in real use, this would read from SPI
     return ESP_ERR_TIMEOUT; 
 
     /* 
     // Logic for decoding when data is actually received:
+    telemetry_packet_t packet;
     state->attitude.roll = packet.roll;
     state->attitude.pitch = packet.pitch;
     state->attitude.yaw = packet.yaw;
-    state->accel.x = (float)packet.accel_x;
-    state->accel.y = (float)packet.accel_y;
-    state->accel.z = (float)packet.accel_z;
+    state->position.x = (float)packet.posX / 100.0f;
+    state->position.y = (float)packet.posY / 100.0f;
+    state->position.z = (float)packet.posZ / 100.0f;
     return ESP_OK;
     */
 }

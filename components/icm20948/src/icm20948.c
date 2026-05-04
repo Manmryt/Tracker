@@ -8,6 +8,7 @@ static const char *TAG = "ICM20948";
 struct icm20948_dev_t {
     i2c_port_t port;
     uint16_t addr;
+    icm20948_offsets_t offsets;
 };
 
 static esp_err_t write_reg(icm20948_handle_t dev, uint8_t reg, uint8_t data)
@@ -85,4 +86,60 @@ esp_err_t icm20948_read_gyro(icm20948_handle_t dev, vector3_t *gyro)
     gyro->z = (int16_t)((data[4] << 8) | data[5]);
 
     return ESP_OK;
+}
+
+esp_err_t icm20948_calibrate(icm20948_handle_t dev, icm20948_offsets_t *offsets)
+{
+    vector3_t a_sum = {0}, g_sum = {0}, temp;
+    const int samples = 500;
+
+    ESP_LOGI(TAG, "Starting calibration... Keep device still and level.");
+
+    for (int i = 0; i < samples; i++) {
+        icm20948_read_accel(dev, &temp);
+        a_sum.x += temp.x; a_sum.y += temp.y; a_sum.z += temp.z;
+
+        icm20948_read_gyro(dev, &temp);
+        g_sum.x += temp.x; g_sum.y += temp.y; g_sum.z += temp.z;
+
+        vTaskDelay(pdMS_TO_TICKS(5));
+    }
+
+    offsets->accel_offset.x = a_sum.x / samples;
+    offsets->accel_offset.y = a_sum.y / samples;
+    offsets->accel_offset.z = (a_sum.z / samples) - 16384.0f; // Subtract 1g (at 16g FSR default)
+
+    offsets->gyro_offset.x = g_sum.x / samples;
+    offsets->gyro_offset.y = g_sum.y / samples;
+    offsets->gyro_offset.z = g_sum.z / samples;
+
+    ESP_LOGI(TAG, "Calibration complete.");
+    return ESP_OK;
+}
+
+void icm20948_apply_offsets(icm20948_handle_t dev, icm20948_offsets_t offsets)
+{
+    dev->offsets = offsets;
+}
+
+esp_err_t icm20948_read_accel_corrected(icm20948_handle_t dev, vector3_t *accel)
+{
+    esp_err_t ret = icm20948_read_accel(dev, accel);
+    if (ret == ESP_OK) {
+        accel->x -= dev->offsets.accel_offset.x;
+        accel->y -= dev->offsets.accel_offset.y;
+        accel->z -= dev->offsets.accel_offset.z;
+    }
+    return ret;
+}
+
+esp_err_t icm20948_read_gyro_corrected(icm20948_handle_t dev, vector3_t *gyro)
+{
+    esp_err_t ret = icm20948_read_gyro(dev, gyro);
+    if (ret == ESP_OK) {
+        gyro->x -= dev->offsets.gyro_offset.x;
+        gyro->y -= dev->offsets.gyro_offset.y;
+        gyro->z -= dev->offsets.gyro_offset.z;
+    }
+    return ret;
 }

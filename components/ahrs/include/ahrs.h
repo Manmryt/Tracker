@@ -18,4 +18,10 @@ void ahrs_init(float beta);
  */
 void ahrs_update(vector3_t accel, vector3_t gyro, float dt, attitude_t *attitude);
 
+/**
+ * @brief Reset the relative position and velocity to zero
+ * @param state Current tracker state
+ */
+void ahrs_zero_position(tracker_state_t *state);
+
 #endif // AHRS_H

@@ -34,13 +34,37 @@ icm20948_handle_t icm20948_create(i2c_port_t port, uint16_t addr);
 esp_err_t icm20948_init(icm20948_handle_t dev);
 
 /**
- * @brief Read raw accelerometer data
+ * @brief Offset values for sensor calibration
  */
-esp_err_t icm20948_read_accel(icm20948_handle_t dev, vector3_t *accel);
+typedef struct {
+    vector3_t accel_offset;
+    vector3_t gyro_offset;
+} icm20948_offsets_t;
 
 /**
- * @brief Read raw gyroscope data
+ * @brief Run a calibration routine to calculate sensor offsets
+ * @note Device must be kept perfectly still and level during this process
+ * @param dev Device handle
+ * @param offsets Output structure to store calculated offsets
+ * @return ESP_OK on success
  */
-esp_err_t icm20948_read_gyro(icm20948_handle_t dev, vector3_t *gyro);
+esp_err_t icm20948_calibrate(icm20948_handle_t dev, icm20948_offsets_t *offsets);
+
+/**
+ * @brief Apply previously calculated offsets to the device handle
+ * @param dev Device handle
+ * @param offsets Offsets to apply
+ */
+void icm20948_apply_offsets(icm20948_handle_t dev, icm20948_offsets_t offsets);
+
+/**
+ * @brief Read corrected accelerometer data (offset applied)
+ */
+esp_err_t icm20948_read_accel_corrected(icm20948_handle_t dev, vector3_t *accel);
+
+/**
+ * @brief Read corrected gyroscope data (offset applied)
+ */
+esp_err_t icm20948_read_gyro_corrected(icm20948_handle_t dev, vector3_t *gyro);
 
 #endif 

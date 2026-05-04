@@ -23,10 +23,12 @@ typedef struct {
  * @brief Complete state of the tracker
  */
 typedef struct {
-    vector3_t accel;
-    vector3_t gyro;
-    vector3_t mag;
-    attitude_t attitude;
+    vector3_t accel;        // Raw or filtered accel
+    vector3_t gyro;         // Raw or filtered gyro
+    vector3_t lin_accel;    // Linear acceleration (Gravity removed)
+    attitude_t attitude;    // Orientation (Degrees)
+    vector3_t position;     // Relative position from takeoff (Meters)
+    vector3_t velocity;     // Current velocity (m/s)
 } tracker_state_t;
 
 #endif // TRACKER_TYPES_H
