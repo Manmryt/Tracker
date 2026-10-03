@@ -169,7 +169,7 @@ idf.py build flash
 ---
 
 ## PCB Images
-![PCB Layou](PCB/Screenshot_from_2026-09-30_05-24-30.png)
+![PCB Layou](PCB/Screenshot from 2026-09-30 05-24-30.png)
 
 ---
 
