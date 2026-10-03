@@ -168,6 +168,11 @@ idf.py build flash
 
 ---
 
+## PCB Images
+![PCB Layou](PCB/Screenshot_from_2026-09-30_05-24-30.png)
+
+---
+
 ## Future Roadmap
 While starting as a tracker, the architecture is being built to support:
 - **Flight Stabilization:** Turning sensor data into motor/servo commands.
