@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/higher_spirit/Tracker/build/CMakeFiles/bootloader
+/home/higher_spirit/Tracker/build/CMakeFiles/bootloader.rule
+/home/higher_spirit/Tracker/build/CMakeFiles/bootloader-complete.rule
+/home/higher_spirit/Tracker/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/home/higher_spirit/Tracker/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/higher_spirit/Tracker/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/higher_spirit/Tracker/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/higher_spirit/Tracker/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/higher_spirit/Tracker/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/higher_spirit/Tracker/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
