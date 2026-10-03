@@ -169,8 +169,10 @@ idf.py build flash
 ---
 
 ## PCB Images
-![PCB Layout](PCB/Screenshot%20from%202026-09-30%2005-24-30.png)
-![PCB 3D View](PCB/Screenshot%20from%202026-09-30%2005-24-30.png)
+<p align="center">
+  <img src="PCB/Screenshot%20from%202026-09-30%2016-38-23.png" width="45%">
+  <img src="PCB/Screenshot%20from%202026-09-30%2016-38-48.png" width="45%">
+</p>
 
 ---
 
